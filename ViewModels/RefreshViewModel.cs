@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JwtAuthServerApi.ViewModels;
+namespace JwtAuthServer.ViewModels;
 
 public class RefreshViewModel
 {

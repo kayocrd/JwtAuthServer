@@ -1,9 +1,9 @@
-﻿using JwtAuthServerApi.Data;
-using JwtAuthServerApi.Models;
+﻿using JwtAuthServer.Data;
+using JwtAuthServer.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
-namespace JwtAuthServerApi.Repositories;
+namespace JwtAuthServer.Repositories;
 
 public class UserRepository
 {
@@ -18,31 +18,29 @@ public class UserRepository
     {
         return await _context.Users.ToListAsync();
     }
-    public async Task<User?> GetUserByUsername(string username)
+    public async Task<User?> GetUserByIdentifier(string identifier)
     {
-        return await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+        return await _context.Users.FirstOrDefaultAsync(u => u.Identifier == identifier);
     }
-    public async Task<User> GetUserByEmail(string email)
+    public async Task<User?> GetUserByEmail(string email)
     {
-        return await _context.Users.Where(u => u.Email == email).FirstAsync();
+        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
-    public async Task<User> AddUser(User user)
+    public async Task AddUser(User user)
     {
         await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
-        return (await GetUserByUsername(user.Username))!;
     }
-    public async Task<User> UpdateUser(User user)
+    public async Task UpdateUser(User user)
     {
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
-        return await _context.Users.Where(u => u.Username == user.Username).FirstAsync();
     }
     public async Task<User> LockUser(User user)
     {
         user.IsLocked = true;
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
-        return await _context.Users.Where(u => u.Username == user.Username).FirstAsync();
+        return await _context.Users.FirstAsync(u => u.Identifier == user.Identifier);
     }
 }

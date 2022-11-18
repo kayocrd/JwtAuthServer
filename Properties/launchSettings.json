@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "JwtAuthServerApi": {
+    "JwtAuthServer": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

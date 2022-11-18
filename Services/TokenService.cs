@@ -2,13 +2,11 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using JwtAuthServerApi.Data;
-using JwtAuthServerApi.Models;
-using JwtAuthServerApi.Repositories;
-using Microsoft.EntityFrameworkCore;
+using JwtAuthServer.Models;
+using JwtAuthServer.Repositories;
 using Microsoft.IdentityModel.Tokens;
 
-namespace JwtAuthServerApi.Services;
+namespace JwtAuthServer.Services;
 
 public class TokenService
 {
@@ -26,16 +24,19 @@ public class TokenService
         {
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Name, user.Identifier),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
+                new Claim("IsVerified", user.IsVerified.ToString()),
                 new Claim("IsLocked", user.IsLocked.ToString())
             }),
+            Issuer = Settings.Issuer,
             Expires = DateTime.UtcNow.AddHours(Settings.ExpirationHours),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            return  tokenHandler.WriteToken(token);
     }
     public string GenerateToken(IEnumerable<Claim> claims)
     {
@@ -44,6 +45,7 @@ public class TokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
+            Issuer = Settings.Issuer,
             Expires = DateTime.UtcNow.AddHours(Settings.ExpirationHours),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
                 SecurityAlgorithms.HmacSha256Signature)
@@ -63,7 +65,8 @@ public class TokenService
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
-            ValidateIssuer = false,
+            ValidateIssuer = true,
+            ValidIssuer = Settings.Issuer,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Settings.Secret)),
             ValidateLifetime = false
@@ -77,18 +80,18 @@ public class TokenService
 
         return principal;
     }
-    public async Task SaveRefreshToken(string username, string refreshToken, DateTime expirationDate)
+    public async Task SaveRefreshToken(string identifier, string refreshToken, DateTime expirationDate)
     {
-        var user = await _userRepository.GetUserByUsername(username);
+        var user = await _userRepository.GetUserByIdentifier(identifier);
         if (user is null)
             throw new Exception("User not found");
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = expirationDate;
         await _userRepository.UpdateUser(user);
     }
-    public async Task<bool> RevokeByUsername(string username)
+    public async Task<bool> RevokeByIdentifier(string identifier)
     {
-        var user = await _userRepository.GetUserByUsername(username);
+        var user = await _userRepository.GetUserByIdentifier(identifier);
         if (user is null)
             throw new Exception("User not found");
         user.RefreshToken = string.Empty;
@@ -96,14 +99,11 @@ public class TokenService
         await _userRepository.UpdateUser(user);
         return true;
     }
-    public async Task<string> GetRefreshToken(string username)
+    public async Task<string> GetRefreshToken(string identifier)
     {
-        var user = await _userRepository.GetUserByUsername(username);
+        var user = await _userRepository.GetUserByIdentifier(identifier);
         if (user is null)
             throw new Exception("User not found");
         return user.RefreshToken;
     }
-    
-    
-    
 }

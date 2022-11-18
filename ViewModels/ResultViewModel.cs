@@ -1,4 +1,4 @@
-﻿namespace JwtAuthServerApi.ViewModels;
+﻿namespace JwtAuthServer.ViewModels;
 
 public class ResultViewModel<T>
 {
