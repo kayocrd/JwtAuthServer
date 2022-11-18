@@ -11,8 +11,8 @@ public static class Settings
     
     public class WhatsappConfiguration
     {
-        public static string Endpoint;
-        public static string InstanceId;
-        public static string Token;
+        public string Endpoint;
+        public string InstanceId;
+        public string Token;
     }
 }

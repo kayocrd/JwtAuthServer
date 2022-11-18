@@ -6,9 +6,9 @@ namespace JwtAuthServer.Services;
 public class WhatsappService : IWhatsappService
 {
     private readonly IHttpClientFactory _clientFactory;
-    private readonly string _endpoint = Settings.WhatsappConfiguration.Endpoint;
-    private readonly string _instanceId = Settings.WhatsappConfiguration.InstanceId;
-    private readonly string _token = Settings.WhatsappConfiguration.Token;
+    private readonly string _endpoint =  Settings.WhatsappConfig.Endpoint;
+    private readonly string _instanceId = Settings.WhatsappConfig.InstanceId;
+    private readonly string _token = Settings.WhatsappConfig.Token;
     
     public WhatsappService(IHttpClientFactory clientFactory)
     {

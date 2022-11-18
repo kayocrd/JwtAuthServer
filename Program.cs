@@ -46,10 +46,9 @@ void LoadConfiguration(WebApplicationBuilder builder)
     Settings.Issuer = builder.Configuration.GetValue<string>("Issuer");
     Settings.ApiKey = builder.Configuration.GetValue<string>("ApiKey");
     Settings.ExpirationHours = builder.Configuration.GetValue("ExpirationHours", 1);
-    
-    var whatsappConfiguration = new Settings.WhatsappConfiguration();
-    builder.Configuration.GetSection("WhatsappConfig").Bind(whatsappConfiguration);
-    Settings.WhatsappConfig = whatsappConfiguration;
+    Settings.WhatsappConfig.Endpoint = builder.Configuration.GetValue<string>("WhatsappConfig:Endpoint");
+    Settings.WhatsappConfig.InstanceId = builder.Configuration.GetValue<string>("WhatsappConfig:InstanceId");
+    Settings.WhatsappConfig.Token = builder.Configuration.GetValue<string>("WhatsappConfig:Token");
 }
 void ConfigureAuthentication(WebApplicationBuilder builder)
 {
